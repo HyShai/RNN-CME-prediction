@@ -177,7 +177,7 @@ def gru(n_features, series_len):
     return model
 
 
-def get_output_table(test_data_file, type, time_window, prob):
+def get_output_table(test_data_file, type, time_window, start_feature, n_features, thresh, prob):
     df = pd.read_csv(test_data_file, header=None)
     df_values0 = df.values
     df_values = get_df_values(type, time_window, df_values0)
