@@ -1,4 +1,5 @@
 pandas
+scikit-learn
 h5py==3.1.0
 tensorflow==1.12.0
 keras==2.2.4
