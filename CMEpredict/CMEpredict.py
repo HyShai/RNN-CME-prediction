@@ -69,7 +69,8 @@ def get_df_values(type, time_window, df_values0):
             df_values = df_values0[:,
                         [0, 1, 2, 3, 11, 5, 13, 20, 7, 15, 8, 14, 6, 21, 4, 9, 12, 10, 19, 18, 16, 17]]  # 60   LSTM
         
-        return df_values
+        
+    return df_values
 
 def load_data(datafile, series_len, start_feature, n_features, mask_value, type, time_window):
     df = pd.read_csv(datafile, header=None)
