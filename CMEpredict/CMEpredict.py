@@ -14,6 +14,10 @@
 #   software for any purpose.  It is provided "as is" without
 #   express or implied warranty.
 # =========================================================================
+import warnings
+warnings.filterwarnings('ignore')
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import pandas as pd
 from sklearn.utils import class_weight
 from keras.models import *
@@ -21,12 +25,9 @@ from keras.layers import *
 import numpy as np
 import sys
 import csv
-import os
-import warnings
 
 
-warnings.filterwarnings('ignore')
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
 try:
     import tensorflow as tf
     tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
@@ -34,9 +35,7 @@ except Exception as e:
     print('turn off loggins is not supported')
 
 
-def load_data(datafile, series_len, start_feature, n_features, mask_value, type, time_window):
-    df = pd.read_csv(datafile, header=None)
-    df_values0 = df.values
+def get_df_values(type, time_window, df_values0):
     if type == 'gru':
         if time_window == 12:
             df_values = df_values0[:,
@@ -69,6 +68,13 @@ def load_data(datafile, series_len, start_feature, n_features, mask_value, type,
         elif time_window == 60:
             df_values = df_values0[:,
                         [0, 1, 2, 3, 11, 5, 13, 20, 7, 15, 8, 14, 6, 21, 4, 9, 12, 10, 19, 18, 16, 17]]  # 60   LSTM
+        
+        return df_values
+
+def load_data(datafile, series_len, start_feature, n_features, mask_value, type, time_window):
+    df = pd.read_csv(datafile, header=None)
+    df_values0 = df.values
+    df_values = get_df_values(type, time_window, df_values0)
     X = []
     y = []
     tmp = []
@@ -170,41 +176,38 @@ def gru(n_features, series_len):
     return model
 
 
+def get_output_table(test_data_file, type, time_window, prob):
+    df = pd.read_csv(test_data_file, header=None)
+    df_values0 = df.values
+    df_values = get_df_values(type, time_window, df_values0)
+    w = []
+
+    idx = 0
+    for i in range(len(df_values)):
+        line = df_values[i].tolist()
+        if line[0] == 'padding' or float(line[-5]) >= 3500 or float(line[-4]) >= 65536 \
+                or abs(float(line[-1]) - float(line[-2])) > 70:
+            continue
+        has_zero_record = False
+        # if one of the physical feature values is missing, then discard it.
+        for k in range(start_feature, start_feature + n_features):
+            if float(line[k]) == 0.0:
+                has_zero_record = True
+                break
+        if has_zero_record:
+            continue
+        if prob[idx] >= thresh:
+            line.insert(0, 'P')
+        else:
+            line.insert(0, 'N')
+        idx += 1
+        w.append(line)
+    return w
+
 def output_result(test_data_file, result_file, type, time_window, start_feature, n_features, thresh):
     df = pd.read_csv(test_data_file, header=None)
     df_values0 = df.values
-    if type == 'gru':
-        if time_window == 12:
-            df_values = df_values0[:,
-                        [0, 1, 2, 3, 11, 13, 7, 8, 15, 18, 21, 6, 9, 10, 17, 5, 16, 4, 12, 19, 20, 14]]  # 12   GRU
-        elif time_window == 24:
-            df_values = df_values0[:,
-                        [0, 1, 2, 3, 11, 13, 15, 5, 20, 9, 21, 7, 8, 6, 17, 18, 10, 14, 4, 12, 16, 19]]  # 24   GRU
-        elif time_window == 36:
-            df_values = df_values0[:,
-                        [0, 1, 2, 3, 11, 5, 13, 20, 9, 21, 15, 8, 7, 4, 6, 14, 12, 17, 10, 18, 16, 19]]  # 36   GRU
-        elif time_window == 48:
-            df_values = df_values0[:,
-                        [0, 1, 2, 3, 11, 5, 13, 20, 9, 14, 8, 7, 21, 6, 4, 15, 12, 17, 16, 10, 18, 19]]  # 48   GRU
-        elif time_window == 60:
-            df_values = df_values0[:,
-                        [0, 1, 2, 3, 11, 5, 13, 20, 7, 15, 8, 14, 6, 21, 4, 9, 12, 10, 19, 18, 16, 17]]  # 60   GRU
-    elif type == 'lstm':
-        if time_window == 12:
-            df_values = df_values0[:,
-                        [0, 1, 2, 3, 11, 13, 20, 7, 15, 8, 21, 6, 18, 5, 10, 9, 17, 16, 19, 12, 14, 4]]  # 12   LSTM
-        elif time_window == 24:
-            df_values = df_values0[:,
-                        [0, 1, 2, 3, 20, 11, 13, 9, 15, 14, 8, 7, 5, 21, 6, 17, 18, 10, 12, 16, 4, 19]]  # 24   LSTM
-        elif time_window == 36:
-            df_values = df_values0[:,
-                        [0, 1, 2, 3, 11, 20, 13, 5, 14, 8, 15, 7, 9, 21, 6, 4, 12, 17, 18, 10, 16, 19]]  # 36   LSTM
-        elif time_window == 48:
-            df_values = df_values0[:,
-                        [0, 1, 2, 3, 11, 5, 20, 13, 9, 14, 7, 15, 8, 6, 4, 21, 12, 17, 18, 16, 10, 19]]  # 48   LSTM
-        elif time_window == 60:
-            df_values = df_values0[:,
-                        [0, 1, 2, 3, 11, 5, 13, 20, 7, 15, 8, 14, 6, 21, 4, 9, 12, 10, 19, 18, 16, 17]]  # 60   LSTM
+    df_values = get_df_values(type, time_window, df_values0)
     with open(result_file, 'w', encoding='UTF-8') as result_csv:
         w = csv.writer(result_csv)
         w.writerow(['Predicted Label', 'Label', 'Timestamp', 'NOAA AR NUM', 'HARP NUM',
