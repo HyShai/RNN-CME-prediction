@@ -18,10 +18,17 @@ import warnings
 warnings.filterwarnings('ignore')
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+import sys
 import pandas as pd
 from sklearn.utils import class_weight
+
+# https://github.com/keras-team/keras/issues/1406
+stderr = sys.stderr
+sys.stderr = open(os.devnull, 'w')
 from keras.models import *
 from keras.layers import *
+sys.stderr = stderr
+
 import numpy as np
 import sys
 import csv
@@ -32,7 +39,7 @@ try:
     import tensorflow as tf
     tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 except Exception as e:
-    print('turn off loggins is not supported')
+    pass
 
 
 def get_df_values(type, time_window, df_values0):
