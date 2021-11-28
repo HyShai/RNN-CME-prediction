@@ -168,8 +168,8 @@ def lstm(n_features, series_len):
 
 def gru(n_features, series_len):
     inputs = Input(shape=(series_len, n_features,))
-    lstm_out = GRU(10, return_sequences=True, dropout=0.5, recurrent_dropout=0.3)(inputs)
-    attention_mul = attention_3d_block(lstm_out, series_len)
+    gru_out = GRU(10, return_sequences=True, dropout=0.5, recurrent_dropout=0.3)(inputs)
+    attention_mul = attention_3d_block(gru_out, series_len)
     layer1 = Dense(100, activation='relu')(attention_mul)
     layer1 = Dropout(0.25)(layer1)
     output = Dense(1, activation='sigmoid', activity_regularizer=regularizers.l2(0.0001))(layer1)
@@ -182,7 +182,7 @@ def get_output_table(test_data_file, type, time_window, start_feature, n_feature
     df_values0 = df.values
     df_values = get_df_values(type, time_window, df_values0)
     w = []
-
+    y = []
     idx = 0
     for i in range(len(df_values)):
         line = df_values[i].tolist()
@@ -199,11 +199,13 @@ def get_output_table(test_data_file, type, time_window, start_feature, n_feature
             continue
         if prob[idx] >= thresh:
             line.insert(0, 'P')
+            y.append('P')
         else:
             line.insert(0, 'N')
+            y.append('N')
         idx += 1
         w.append(line)
-    return w
+    return w, y
 
 def output_result(test_data_file, result_file, type, time_window, start_feature, n_features, thresh):
     df = pd.read_csv(test_data_file, header=None)
