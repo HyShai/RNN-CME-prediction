@@ -176,37 +176,6 @@ def gru(n_features, series_len):
     model = Model(inputs=[inputs], outputs=output)
     return model
 
-
-def get_output_table(test_data_file, type, time_window, start_feature, n_features, thresh, prob):
-    df = pd.read_csv(test_data_file, header=None)
-    df_values0 = df.values
-    df_values = get_df_values(type, time_window, df_values0)
-    w = []
-    y = []
-    idx = 0
-    for i in range(len(df_values)):
-        line = df_values[i].tolist()
-        if line[0] == 'padding' or float(line[-5]) >= 3500 or float(line[-4]) >= 65536 \
-                or abs(float(line[-1]) - float(line[-2])) > 70:
-            continue
-        has_zero_record = False
-        # if one of the physical feature values is missing, then discard it.
-        for k in range(start_feature, start_feature + n_features):
-            if float(line[k]) == 0.0:
-                has_zero_record = True
-                break
-        if has_zero_record:
-            continue
-        if prob[idx] >= thresh:
-            line.insert(0, 'P')
-            y.append('P')
-        else:
-            line.insert(0, 'N')
-            y.append('N')
-        idx += 1
-        w.append(line)
-    return w, y
-
 def output_result(test_data_file, result_file, type, time_window, start_feature, n_features, thresh):
     df = pd.read_csv(test_data_file, header=None)
     df_values0 = df.values
