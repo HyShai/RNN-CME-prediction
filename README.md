@@ -29,7 +29,7 @@ For the latest updates of CMEPredict refer to [https://github.com/deepsuncode/RN
 
 Requires `Python==3.6.x` (was tested on 3.6.8)
 
-Run `pip install -r requirements.txt`, or manually install the following packages and specified versions:
+Run `pip install -r requirements.txt` (recommended), or manually install the following packages and specified versions:
 
 | Library      | Version | Description                    |
 |--------------|---------|--------------------------------|
