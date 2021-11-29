@@ -2,8 +2,11 @@
 
 ## Authors
 
-Hao Liu, Chang Liu, Jason T. L. Wang, Haimin Wang, and Shaya Goldberg
+Hao Liu, Chang Liu, Jason T. L. Wang, and Haimin Wang
 
+## Contributors
+
+Yasser Abduallah and Shaya Goldberg
 
 ## Abstract
 
@@ -21,6 +24,22 @@ This notebook is Binder enabled and can be run on [mybinder.org](https://mybinde
 Please note that starting Binder might take some time to create and start the image.
 
 For the latest updates of CMEPredict refer to [https://github.com/deepsuncode/RNN-CME-prediction](https://github.com/deepsuncode/RNN-CME-prediction)
+
+## Installation on local machine
+
+Requires `Python == 3.6` (was tested on 3.6.8)
+
+Run `pip install -r requirements.txt`, or manually install the following packages and specified versions:
+
+| Library      | Version | Description                    |
+|--------------|---------|--------------------------------|
+| pandas       | 1.1.5   | Data analysis                  |
+| scikit-learn | 0.24.2  | Neural network libraries       |
+| matplotlib   | 3.3.4   | Plotting and graphs            |
+| h5py         | 2.10.0  | Data storage and management    |
+| tensorflow   | 1.12.0  | Neural network libraries       |
+| keras        | 2.2.4   | Artificial neural networks API |
+
 
 ## References:
 
