@@ -41,7 +41,7 @@ Run `pip install -r requirements.txt`, or manually install the following package
 | keras        | 2.2.4   | Artificial neural networks API |
 
 
-## References:
+## References
 
 Predicting Coronal Mass Ejections Using SDO/HMI Vector Magnetic Data Products and Recurrent Neural Networks. Liu, H., Liu, C., Wang, J. T. L., Wang, H., ApJ., 890:12, 2020  
 
